@@ -260,6 +260,46 @@ const draculaStyle = {
 	codeThemeCss: 'atom-one-dark-reasonable.css',
 };
 
+// PYWAL PATCH BEGIN
+const pywalColors = require('/home/anon/.cache/wal/colors.json');
+
+const pywalStyle = {
+	backgroundColor: pywalColors.special.background,
+	backgroundColorTransparent: pywalColors.special.background,
+	oddBackgroundColor: pywalColors.colors.color12,
+	color: pywalColors.special.foreground,   // For regular text
+	colorError: pywalColors.colors.color12,
+	colorWarn: pywalColors.colors.color10,
+	colorFaded: pywalColors.colors.color12,        // For less important text;
+	colorBright: '#50fa7b',       // For important text;
+	dividerColor: pywalColors.colors.color12,
+	selectedColor: pywalColors.colors.color2,
+	urlColor: '#8be9fd',
+
+	backgroundColor2: pywalColors.colors.color1,
+	depthColor: pywalColors.colors.color1,
+	color2: pywalColors.colors.color15,
+	selectedColor2: pywalColors.colors.color12,
+	colorError2: pywalColors.colors.color12,
+
+	raisedBackgroundColor: pywalColors.colors.color12,
+	raisedColor: pywalColors.colors.color0,
+	warningBackgroundColor: pywalColors.colors.color12,
+
+	htmlColor: pywalColors.special.foreground, // todo: use dracula
+	htmlBackgroundColor: pywalColors.special.background,
+	htmlDividerColor: pywalColors.colors.color12,
+	htmlLinkColor: '#8be9fd',
+	htmlTableBackgroundColor: pywalColors.colors.color5,
+	htmlCodeBackgroundColor: pywalColors.colors.color2,
+	htmlCodeBorderColor: pywalColors.colors.color1,
+	htmlCodeColor: '#50fa7b',
+
+	editorTheme: 'dracula',
+	codeThemeCss: 'atom-one-dark-reasonable.css',
+};
+// PYWAL PATCH END
+
 function addExtraStyles(style) {
 	style.tagStyle = {
 		fontSize: style.fontSize,
@@ -407,6 +447,8 @@ function themeStyle(theme) {
 		output = Object.assign({}, output, solarizedDarkStyle);
 	} else if (theme == Setting.THEME_DRACULA) {
 		output = Object.assign({}, output, draculaStyle);
+	} else if (theme == Setting.THEME_PYWAL) {
+		output = Object.assign({}, output, pywalStyle);
 	}
 
 	// Note: All the theme specific things should go in addExtraStyles
