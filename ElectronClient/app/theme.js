@@ -273,7 +273,7 @@ const pywalStyle = {
 	colorFaded: pywalColors.colors.color12,        // For less important text;
 	colorBright: '#50fa7b',       // For important text;
 	dividerColor: pywalColors.colors.color12,
-	selectedColor: pywalColors.colors.color2,
+	selectedColor: pywalColors.colors.color1,
 	urlColor: '#8be9fd',
 
 	backgroundColor2: pywalColors.colors.color1,
@@ -283,15 +283,15 @@ const pywalStyle = {
 	colorError2: pywalColors.colors.color12,
 
 	raisedBackgroundColor: pywalColors.colors.color12,
-	raisedColor: pywalColors.colors.color0,
+	raisedColor: pywalColors.colors.color1,
 	warningBackgroundColor: pywalColors.colors.color12,
 
-	htmlColor: pywalColors.special.foreground, // todo: use dracula
+	htmlColor: pywalColors.special.foreground,
 	htmlBackgroundColor: pywalColors.special.background,
 	htmlDividerColor: pywalColors.colors.color12,
 	htmlLinkColor: '#8be9fd',
 	htmlTableBackgroundColor: pywalColors.colors.color5,
-	htmlCodeBackgroundColor: pywalColors.colors.color2,
+	htmlCodeBackgroundColor: pywalColors.colors.color0,
 	htmlCodeBorderColor: pywalColors.colors.color1,
 	htmlCodeColor: '#50fa7b',
 
