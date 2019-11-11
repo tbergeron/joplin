@@ -122,19 +122,31 @@ class Application extends BaseApplication {
 			case 'NOTE_VISIBLE_PANES_TOGGLE':
 
 				{
-					let panes = state.noteVisiblePanes.slice();
-					if (panes.length === 2) {
-						panes = ['editor'];
-					} else if (panes.indexOf('editor') >= 0) {
-						panes = ['viewer'];
-					} else if (panes.indexOf('viewer') >= 0) {
-						panes = ['editor', 'viewer'];
-					} else {
-						panes = ['editor', 'viewer'];
-					}
+					const getNextLayout = (currentLayout) => {
+						currentLayout = panes.length === 2 ? 'both' : currentLayout[0];
+
+						let paneOptions;
+						if (state.settings.layoutButtonSequence === Setting.LAYOUT_EDITOR_VIEWER) {
+							paneOptions = ['editor', 'viewer'];
+						} else if (state.settings.layoutButtonSequence === Setting.LAYOUT_EDITOR_SPLIT) {
+							paneOptions = ['editor', 'both'];
+						} else if (state.settings.layoutButtonSequence === Setting.LAYOUT_VIEWER_SPLIT) {
+							paneOptions = ['viewer', 'both'];
+						} else {
+							paneOptions = ['editor', 'viewer', 'both'];
+						}
+
+						const currentLayoutIndex = paneOptions.indexOf(currentLayout);
+						const nextLayoutIndex = currentLayoutIndex === paneOptions.length - 1 ? 0 : currentLayoutIndex + 1;
+
+						let nextLayout = paneOptions[nextLayoutIndex];
+						return nextLayout === 'both' ? ['editor', 'viewer'] : [nextLayout];
+					};
 
 					newState = Object.assign({}, state);
-					newState.noteVisiblePanes = panes;
+
+					let panes = state.noteVisiblePanes.slice();
+					newState.noteVisiblePanes = getNextLayout(panes);
 				}
 				break;
 
@@ -489,6 +501,18 @@ class Application extends BaseApplication {
 			},
 		};
 
+		const newSubNotebookItem = {
+			label: _('New sub-notebook'),
+			screens: ['Main'],
+			click: () => {
+				this.dispatch({
+					type: 'WINDOW_COMMAND',
+					name: 'newSubNotebook',
+					activeFolderId: Setting.value('activeFolderId'),
+				});
+			},
+		};
+
 		const printItem = {
 			label: _('Print'),
 			accelerator: 'CommandOrControl+P',
@@ -632,7 +656,8 @@ class Application extends BaseApplication {
 			},
 			shim.isMac() ? noItem : newNoteItem,
 			shim.isMac() ? noItem : newTodoItem,
-			shim.isMac() ? noItem : newNotebookItem, {
+			shim.isMac() ? noItem : newNotebookItem,
+			shim.isMac() ? noItem : newSubNotebookItem, {
 				type: 'separator',
 				visible: shim.isMac() ? false : true,
 			}, {
@@ -687,7 +712,8 @@ class Application extends BaseApplication {
 			submenu: [
 				newNoteItem,
 				newTodoItem,
-				newNotebookItem, {
+				newNotebookItem,
+				newSubNotebookItem, {
 					label: _('Close Window'),
 					platforms: ['darwin'],
 					accelerator: 'Command+W',
@@ -711,6 +737,17 @@ class Application extends BaseApplication {
 				printItem,
 			],
 		};
+
+		const layoutButtonSequenceOptions = Object.entries(Setting.enumOptions('layoutButtonSequence')).map(([layoutKey, layout]) => ({
+			label: layout,
+			screens: ['Main'],
+			type: 'checkbox',
+			checked: Setting.value('layoutButtonSequence') == layoutKey,
+			click: () => {
+				Setting.setValue('layoutButtonSequence', layoutKey);
+				this.refreshMenu();
+			},
+		}));
 
 		const rootMenus = {
 			edit: {
@@ -866,6 +903,13 @@ class Application extends BaseApplication {
 						});
 					},
 				}, {
+					type: 'separator',
+					screens: ['Main'],
+				}, {
+					label: _('Layout button sequence'),
+					screens: ['Main'],
+					submenu: layoutButtonSequenceOptions,
+				}, {
 					label: _('Toggle note list'),
 					screens: ['Main'],
 					click: () => {
@@ -895,6 +939,14 @@ class Application extends BaseApplication {
 					label: Setting.settingMetadata('folders.sortOrder.field').label(),
 					screens: ['Main'],
 					submenu: sortFolderItems,
+				}, {
+					label: Setting.settingMetadata('showNoteCounts').label(),
+					type: 'checkbox',
+					checked: Setting.value('showNoteCounts'),
+					screens: ['Main'],
+					click: () => {
+						Setting.setValue('showNoteCounts', !Setting.value('showNoteCounts'));
+					},
 				}, {
 					label: Setting.settingMetadata('uncompletedTodosOnTop').label(),
 					type: 'checkbox',
@@ -1208,7 +1260,9 @@ class Application extends BaseApplication {
 		}, 1000 * 60 * 60);
 
 		if (Setting.value('startMinimized') && Setting.value('showTrayIcon')) {
-			bridge().window().hide();
+			// Keep it hidden
+		} else {
+			bridge().window().show();
 		}
 
 		ResourceService.runInBackground();
